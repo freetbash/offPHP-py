@@ -5,7 +5,7 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from NewTextEdit import QTextEditWithLineNum
 import sys
-
+version = "1.0.0"
 st=subprocess.STARTUPINFO
 st.dwFlags=subprocess.STARTF_USESHOWWINDOW
 st.wShowWindow=subprocess.SW_HIDE
@@ -34,7 +34,7 @@ class MainApp(QWidget):
 
     def initUI(self):
         self.setGeometry(300, 300, 1000, 600)
-        self.setWindowTitle("offPHP")
+        self.setWindowTitle("offPHP v" + version)
         self.mainLayout = QVBoxLayout(self)
         self.topLayout = QHBoxLayout()
 
@@ -58,15 +58,18 @@ class MainApp(QWidget):
 
         self.codeinput = QTextEditWithLineNum()
         self.codeinput.setLineWrapMode(QTextEdit.WidgetWidth)
+        self.codeinput.setAcceptRichText(False)
         self.bottomLayout.addWidget(self.codeinput)
 
         self.rightLayout = QVBoxLayout()
         self.input = QTextEditWithLineNum()
+        self.input.setLineWrapMode(QTextEdit.WidgetWidth)
         self.input.setFixedHeight(200)
         self.rightLayout.addWidget(self.input)
 
         self.output = QTextEditWithLineNum()
         self.output.setFont(QFont("Consolas", 8))
+        self.output.setLineWrapMode(QTextEdit.WidgetWidth)
         self.output.setReadOnly(True)
         self.rightLayout.addWidget(self.output)
 
