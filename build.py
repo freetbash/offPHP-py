@@ -7,5 +7,5 @@ if __name__ == '__main__':
         pass
     cmd = "pyinstaller -w -i op.ico offPHP.py"
     os.system(cmd)
-    shutil.copytree("php", "dist/offPHP/php")
+    # shutil.copytree("php", "dist/offPHP/php")
     shutil.copy("op.ico", "dist/offPHP/op.ico")

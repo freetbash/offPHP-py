@@ -125,7 +125,7 @@ class MainApp(QWidget):
 
             self.output.setPlainText(content)
         except KeyError:
-            QMessageBox.warning(self, "Warning", "PHP version not found", QMessageBox.Ok)
+            QMessageBox.warning(self, "Warning", "PHP version not found. View the github to get more information.", QMessageBox.Ok)
 
 
     def set_icon(self,filename):
