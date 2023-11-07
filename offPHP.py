@@ -23,7 +23,7 @@ class MainApp(QWidget):
 
     def initEvents(self):
         self.to_rest(QMessageBox.Yes)
-        self.output.setPlaceholderText("Runtime is PHP5.6.0|PHP7.1.6")
+        self.output.setPlaceholderText("Runtime is PHP5.6.0|PHP7.1.6 \n Made by Freet Bash")
         self.input.setPlaceholderText("Input arguments here")
         self.reset.clicked.connect(self.on_reset)
         self.loadfie.clicked.connect(self.open_file)
