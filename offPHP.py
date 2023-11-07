@@ -17,13 +17,15 @@ class MainApp(QWidget):
         self.phpDir = os.path.dirname(os.path.realpath(__file__))
         self.phpDir = os.path.join(self.phpDir, "php")
         self.phps = {}
-
+        if not os.path.exists(self.phpDir):
+            QMessageBox.critical(self, "Please check the php directory", "Please check the php directory in the root folder of this")
+            sys.exit(1)
         self.init_phps()
         self.set_icon("op.ico")
 
     def initEvents(self):
         self.to_rest(QMessageBox.Yes)
-        self.output.setPlaceholderText("Runtime is PHP5.6.0|PHP7.1.6 \n Made by Freet Bash")
+        self.output.setPlaceholderText("Runtime is PHP5.6.0|PHP7.1.6 \nMade by Freet Bash")
         self.input.setPlaceholderText("Input arguments here")
         self.reset.clicked.connect(self.on_reset)
         self.loadfie.clicked.connect(self.open_file)
