@@ -6,7 +6,9 @@ from PySide6.QtGui import *
 from NewTextEdit import QTextEditWithLineNum
 import sys
 
-
+st=subprocess.STARTUPINFO
+st.dwFlags=subprocess.STARTF_USESHOWWINDOW
+st.wShowWindow=subprocess.SW_HIDE
 class MainApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -106,7 +108,7 @@ class MainApp(QWidget):
         # handle the php code
         input_data = self.input.toPlainText()
         process = subprocess.Popen([php, "-f", temp_php], stdin=subprocess.PIPE,
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,startupinfo=st)
         stdout, stderr = process.communicate(input=input_data.encode("utf-8"))
         content = stdout.decode("utf-8")
         if stderr:
