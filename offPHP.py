@@ -5,7 +5,7 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from NewTextEdit import QTextEditWithLineNum
 import sys
-version = "1.0.0"
+version = "1.1.0"
 st=subprocess.STARTUPINFO
 st.dwFlags=subprocess.STARTF_USESHOWWINDOW
 st.wShowWindow=subprocess.SW_HIDE
@@ -16,11 +16,9 @@ class MainApp(QWidget):
         self.initEvents()
         self.phpDir = os.path.dirname(os.path.realpath(__file__))
         self.phpDir = os.path.join(self.phpDir, "php")
-        self.php = os.path.join(self.phpDir, "php7.1","")
-        self.phps = {
-            "PHP5.6.0": os.path.join(self.phpDir, "php5.6.0", "php.exe"),
-            "PHP7.1.6": os.path.join(self.phpDir, "php7.1.6", "php.exe"),
-        }
+        self.phps = {}
+
+        self.init_phps()
         self.set_icon("op.ico")
 
     def initEvents(self):
@@ -39,7 +37,7 @@ class MainApp(QWidget):
         self.topLayout = QHBoxLayout()
 
         self.phpVersion = QComboBox(self)
-        self.phpVersion.addItems(["PHP5.6.0", "PHP7.1.6"])
+        # add in init_phps()
         self.topLayout.addWidget(self.phpVersion)
 
         self.reset = QPushButton("Reset")
@@ -77,6 +75,13 @@ class MainApp(QWidget):
         self.mainLayout.addLayout(self.topLayout)
         self.mainLayout.addLayout(self.bottomLayout)
 
+    def init_phps(self):
+        phpdirname = os.listdir(self.phpDir)
+        for dir in phpdirname:
+            self.phps[dir] = os.path.join(self.phpDir,dir , "php.exe"),
+        self.phpVersion.addItems(phpdirname)
+
+
     def on_reset(self):
         res = QMessageBox.question(self, "Reset", "Do you want to reset?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         self.to_rest(res == QMessageBox.Yes)
@@ -84,7 +89,7 @@ class MainApp(QWidget):
 
     def to_rest(self, state):
         if state:
-            self.codeinput.setPlainText('<?php \necho"hello word";')
+            self.codeinput.setPlainText('<?php \necho "hello word";')
             self.output.clear()
 
     def open_file(self):
@@ -104,22 +109,24 @@ class MainApp(QWidget):
             f.write(self.codeinput.toPlainText())
 
         # choose the php version
-        php = ""
-        if self.phpVersion.currentText() == "PHP5.6.0":
-            php = self.phps["PHP5.6.0"]
-        elif self.phpVersion.currentText() == "PHP7.1.6":
-            php = self.phps["PHP7.1.6"]
 
-        # handle the php code
-        input_data = self.input.toPlainText()
-        process = subprocess.Popen([php, "-f", temp_php], stdin=subprocess.PIPE,
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,startupinfo=st)
-        stdout, stderr = process.communicate(input=input_data.encode("utf-8"))
-        content = stdout.decode("utf-8")
-        if stderr:
-            content += "\nSTDERR: " + stderr.decode("utf-8")
+        try:
+            # get the php path
+            php = self.phps[self.phpVersion.currentText()][0]
+            input_data = self.input.toPlainText()
+            # handle the php code
 
-        self.output.setPlainText(content)
+            process = subprocess.Popen([php, "-f", temp_php], stdin=subprocess.PIPE,
+                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=st)
+            stdout, stderr = process.communicate(input=input_data.encode("utf-8"))
+            content = stdout.decode("utf-8")
+            if stderr:
+                content += "\nSTDERR: " + stderr.decode("utf-8")
+
+            self.output.setPlainText(content)
+        except KeyError:
+            QMessageBox.warning(self, "Warning", "PHP version not found", QMessageBox.Ok)
+
 
     def set_icon(self,filename):
         icon = QIcon(filename)
