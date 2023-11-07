@@ -21,6 +21,8 @@ class MainApp(QWidget):
             "PHP5.6.0": os.path.join(self.phpDir, "php5.6.0", "php.exe"),
             "PHP7.1.6": os.path.join(self.phpDir, "php7.1.6", "php.exe"),
         }
+        self.set_icon("op.ico")
+
     def initEvents(self):
         self.to_rest(QMessageBox.Yes)
         self.output.setPlaceholderText("Runtime is PHP5.6.0|PHP7.1.6")
@@ -115,6 +117,10 @@ class MainApp(QWidget):
             content += "\nSTDERR: " + stderr.decode("utf-8")
 
         self.output.setPlainText(content)
+
+    def set_icon(self,filename):
+        icon = QIcon(filename)
+        self.setWindowIcon(icon)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
