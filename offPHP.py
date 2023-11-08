@@ -3,6 +3,7 @@ import subprocess
 
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
+from PySide6.QtWebEngineWidgets import *
 from NewTextEdit import QTextEditWithLineNum
 import sys
 version = "1.1.0"
@@ -26,7 +27,6 @@ class MainApp(QWidget):
     def initEvents(self):
         self.to_rest(QMessageBox.Yes)
         self.output.setPlaceholderText("Runtime is PHP5.6.0|PHP7.1.6 \nMade by Freet Bash")
-        self.input.setPlaceholderText("Input arguments here")
         self.reset.clicked.connect(self.on_reset)
         self.loadfie.clicked.connect(self.open_file)
         self.copy.clicked.connect(self.on_copy)
@@ -48,11 +48,16 @@ class MainApp(QWidget):
         self.run = QPushButton("Run")
         self.topLayout.addWidget(self.run)
 
+
+
         self.copy = QPushButton("Copy")
         self.topLayout.addWidget(self.copy)
 
         self.loadfie = QPushButton("Open File")
         self.topLayout.addWidget(self.loadfie)
+
+        self.setRichText = QCheckBox("Set Html")
+        self.topLayout.addWidget(self.setRichText)
 
         self.bottomLayout = QHBoxLayout()
 
@@ -61,19 +66,22 @@ class MainApp(QWidget):
         self.codeinput.setAcceptRichText(False)
         self.bottomLayout.addWidget(self.codeinput)
 
-        self.rightLayout = QVBoxLayout()
-        self.input = QTextEditWithLineNum()
-        self.input.setLineWrapMode(QTextEdit.WidgetWidth)
-        self.input.setFixedHeight(200)
-        self.rightLayout.addWidget(self.input)
-
         self.output = QTextEditWithLineNum()
+        self.output.setFixedHeight(self.size().height()/2)
         self.output.setFont(QFont("Consolas", 8))
         self.output.setLineWrapMode(QTextEdit.WidgetWidth)
         self.output.setReadOnly(True)
-        self.rightLayout.addWidget(self.output)
 
+        self.browser = QWebEngineView()
+        self.browser.setFixedHeight(self.size().height())
+
+        self.rightLayout = QVBoxLayout()
+        self.rightLayout.addWidget(self.output)
+        self.rightLayout.addWidget(self.browser)
+
+        self.rightLayout.addLayout(self.rightLayout)
         self.bottomLayout.addLayout(self.rightLayout)
+
         self.mainLayout.addLayout(self.topLayout)
         self.mainLayout.addLayout(self.bottomLayout)
 
@@ -115,17 +123,20 @@ class MainApp(QWidget):
         try:
             # get the php path
             php = self.phps[self.phpVersion.currentText()][0]
-            input_data = self.input.toPlainText()
+
             # handle the php code
 
             process = subprocess.Popen([php, "-f", temp_php], stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=st)
-            stdout, stderr = process.communicate(input=input_data.encode("utf-8"))
-            content = stdout.decode("utf-8")
+            stdout, stderr = process.communicate()
+            content = stdout.decode("gbk")
             if stderr:
-                content += "\nSTDERR: " + stderr.decode("utf-8")
+                content += "\nSTDERR: " + stderr.decode("gbk")
+            if self.setRichText.isChecked():
+                self.browser.setHtml(content)
+            else:
+                self.output.setPlainText(content)
 
-            self.output.setPlainText(content)
         except KeyError:
             QMessageBox.warning(self, "Warning", "PHP version not found. View the github to get more information.", QMessageBox.Ok)
 
