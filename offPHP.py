@@ -1,32 +1,38 @@
 import os
+import sys
 import subprocess
 
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from PySide6.QtWebEngineWidgets import *
 from NewTextEdit import QTextEditWithLineNum
-import sys
-version = "1.1.0"
+
+version = "1.2.0"
 st=subprocess.STARTUPINFO
 st.dwFlags=subprocess.STARTF_USESHOWWINDOW
 st.wShowWindow=subprocess.SW_HIDE
+
 class MainApp(QWidget):
     def __init__(self):
+        # init something
         super().__init__()
-        self.initUI()
-        self.initEvents()
         self.phpDir = os.path.dirname(os.path.realpath(__file__))
         self.phpDir = os.path.join(self.phpDir, "php")
         self.phps = {}
         if not os.path.exists(self.phpDir):
-            QMessageBox.critical(self, "Please check the php directory", "Please check the php directory in the root folder of this")
+            QMessageBox.critical(self, "Please check the php directory",
+                                 "Please check the php directory in the root folder of this")
             sys.exit(1)
+
+        self.initUI()
+        self.initEvents()
         self.init_phps()
+
         self.set_icon("op.ico")
 
     def initEvents(self):
         self.to_rest(QMessageBox.Yes)
-        self.output.setPlaceholderText("Runtime is PHP5.6.0|PHP7.1.6 \nMade by Freet Bash")
+        self.browser.setHtml("Runtime is PHP5.6.0|PHP7.1.6 \nMade by Freet Bash")
         self.reset.clicked.connect(self.on_reset)
         self.loadfie.clicked.connect(self.open_file)
         self.copy.clicked.connect(self.on_copy)
@@ -49,15 +55,11 @@ class MainApp(QWidget):
         self.topLayout.addWidget(self.run)
 
 
-
         self.copy = QPushButton("Copy")
         self.topLayout.addWidget(self.copy)
 
         self.loadfie = QPushButton("Open File")
         self.topLayout.addWidget(self.loadfie)
-
-        self.setRichText = QCheckBox("Set Html")
-        self.topLayout.addWidget(self.setRichText)
 
         self.bottomLayout = QHBoxLayout()
 
@@ -66,21 +68,11 @@ class MainApp(QWidget):
         self.codeinput.setAcceptRichText(False)
         self.bottomLayout.addWidget(self.codeinput)
 
-        self.output = QTextEditWithLineNum()
-        self.output.setFixedHeight(self.size().height()/2)
-        self.output.setFont(QFont("Consolas", 8))
-        self.output.setLineWrapMode(QTextEdit.WidgetWidth)
-        self.output.setReadOnly(True)
-
         self.browser = QWebEngineView()
         self.browser.setFixedHeight(self.size().height())
+        self.browser.setFixedWidth(self.size().width()/2)
 
-        self.rightLayout = QVBoxLayout()
-        self.rightLayout.addWidget(self.output)
-        self.rightLayout.addWidget(self.browser)
-
-        self.rightLayout.addLayout(self.rightLayout)
-        self.bottomLayout.addLayout(self.rightLayout)
+        self.bottomLayout.addWidget(self.browser)
 
         self.mainLayout.addLayout(self.topLayout)
         self.mainLayout.addLayout(self.bottomLayout)
@@ -100,7 +92,7 @@ class MainApp(QWidget):
     def to_rest(self, state):
         if state:
             self.codeinput.setPlainText('<?php \necho "hello word";')
-            self.output.clear()
+            self.browser.setHtml("Runtime is PHP5.6.0|PHP7.1.6 \nMade by Freet Bash")
 
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Code Files (*.*)")
@@ -132,10 +124,7 @@ class MainApp(QWidget):
             content = stdout.decode("gbk")
             if stderr:
                 content += "\nSTDERR: " + stderr.decode("gbk")
-            if self.setRichText.isChecked():
-                self.browser.setHtml(content)
-            else:
-                self.output.setPlainText(content)
+            self.browser.setHtml(content)
 
         except KeyError:
             QMessageBox.warning(self, "Warning", "PHP version not found. View the github to get more information.", QMessageBox.Ok)
